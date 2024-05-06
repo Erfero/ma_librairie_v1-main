@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %} Havre de Paix | Livres {% endblock %}</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/owl.carousel@2.3.4/dist/assets/owl.carousel.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/owl.carousel@2.3.4/dist/assets/owl.theme.default.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/owl.carousel@2.3.4/dist/owl.carousel.min.js"></script>
+
+    <!-- style css -->
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+    </style>
+    {% comment %}
+    <script src="https://cdn.jsdelivr.net/npm/owl.carousel@2.3.4/dist/owl.carousel.min.js"></script>
+    {% endcomment %} {% comment %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {% endcomment %}
+  </head>
+  <body class="bg-gray-100">
+    <header class="sticky top-0 z-50">
+      <!-- Barre de navigation -->
+      {% include 'header.html' %}
+    </header>
+    <main>
+      <div
+        class="max-w-xl md:max-w-2xl lg:max-w-7xl px-5 md:px-0 lg:px-0 mx-auto mt-32 md:mt-32 lg:mt-32"
+      >
+        {% block content %} {% endblock %}
+      </div>
+    </main>
+    <!-- Pied de page -->
+    <footer class="relative">{% include 'footer.html' %}</footer>
+    <!-- script flowbite -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+  </body>
+  <script>
+      {% block script %}
+      {% endblock %}
+    
+  </script>
+  <style>
+   /* .owl-dots button {
+        display: none;
+        background-color: #000;
+    }*/
+  </style>
+</html>

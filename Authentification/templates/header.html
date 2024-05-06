@@ -1,0 +1,106 @@
+<!-- début navbar -->
+
+<nav class="fixed top-0 w-full bg-white border-gray-200 dark:bg-gray-900 shadow py-2 m-0">
+  <div class="max-w-screen-2xl flex flex-wrap items-cente justify-between mx-auto p-4">
+    <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse" title="Ma Librairie">
+      <svg class="w-8 h-8 text-gray-800 dark:text-white md:hidden lg:block" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20 14h-2.7L11 20.3l-.9.7H20a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1ZM9 3H4a1 1 0 0 0-1 1v13.5a3.5 3.5 0 1 0 7 0V4a1 1 0 0 0-1-1ZM6.5 18.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2ZM19.1 7.9l-3.5-3.5a1 1 0 0 0-1.4 0L12 6.5v10l7.1-7.2a1 1 0 0 0 0-1.4Z" />
+      </svg>
+      <span class="hidden hover:block md:block self-center text-2xl font-semibold whitespace-nowrap text-gray-800 dark:text-white">Ma Librairie</span>
+    </a>
+
+    {% if user.is_authenticated %}
+      <!-- début lien navbar pour un utilisateur lorsqu'il est authentifié -->
+      <div class="flex items-center md:order-2 gap-5 md:space-x-0 rtl:space-x-reverse">
+        {% comment %} <a href="" class="relative flex flex-col items-center py-2 px-3 text-gray-300 rounded group-hover:bg-blue-100 md:group-hover:bg-transparent md:group-hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700" title="Se connecter">
+          <span class="">
+            <svg class="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M5 3a1 1 0 0 0 0 2h.7l2.1 10.2a3 3 0 1 0 4 1.8h2.4a3 3 0 1 0 2.8-2H9.8l-.2-1h8.2a1 1 0 0 0 1-.8l1.2-6A1 1 0 0 0 19 6h-2.3c.2.3.3.6.3 1a2 2 0 0 1-2 2 2 2 0 1 1-4 0 2 2 0 0 1-1.7-3H7.9l-.4-2.2a1 1 0 0 0-1-.8H5Z" clip-rule="evenodd" />
+              <path fill-rule="evenodd" d="M14 5a1 1 0 1 0-2 0v1h-1a1 1 0 1 0 0 2h1v1a1 1 0 1 0 2 0V8h1a1 1 0 1 0 0-2h-1V5Z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span class="hidden">Panier</span>
+          <span class="absolute left-5 bg-red-500"><span class="flex justify-center items-center w-5 h-5 text-sm bg-blue-500 rounded-full font-semibold p-2 shadow-lg">0</span></span>
+        </a> {% endcomment %}
+
+        <a href="{% url 'get_cart_books' %}" class="hidden lg:block text-white dark:text-black bg-black dark:bg-white px-5 py-3 rounded-full hover:text-black hover:bg-gray-200 transition duration-300" title="Panier">Panier</a>
+
+        <button onclick="toggleReplyForm()" class="hidden lg:block text-black dark:text-black bg-gray-200 dark:bg-white px-5 py-3 rounded-full hover:text-white hover:bg-black transition duration-300" title="Rechercher">Rechercher</button>
+
+        <button type="button" class="flex items-center text-sm rounded-full md:me-0 focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom" title="Mon profil">
+          <span class="sr-only">Open user menu</span>
+          <svg class="w-12 h-12 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M12 20a8 8 0 0 1-5-1.8v-.6c0-1.8 1.5-3.3 3.3-3.3h3.4c1.8 0 3.3 1.5 3.3 3.3v.6a8 8 0 0 1-5 1.8ZM2 12a10 10 0 1 1 10 10A10 10 0 0 1 2 12Zm10-5a3.3 3.3 0 0 0-3.3 3.3c0 1.7 1.5 3.2 3.3 3.2 1.8 0 3.3-1.5 3.3-3.3C15.3 8.6 13.8 7 12 7Z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <!-- Dropdown menu -->
+        <div class="z-50 hidden my-4 text-base list-none bg-slate-800 divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
+          <div class="px-4 py-3">
+            <span class="block text-sm text-gray-300 dark:text-white">{{ user.username }}</span>
+          </div>
+          <ul class="py-2" aria-labelledby="user-menu-button">
+            <li>
+              <a href="{% url 'account' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Mon Profil</a>
+            </li>
+            <li>
+              <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="block px-4 py-2 text-sm text-gray-300 hover:bg-blue-500 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Se déconnecter</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+
+        <button data-collapse-toggle="navbar-user" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-user" aria-expanded="false">
+          <span class="sr-only">Open main menu</span>
+          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" />
+          </svg>
+        </button>
+      </div>
+      <!-- fin lien navbar pour un utilisateur lorsqu'il est authentifié -->
+    {% else %}
+      <!--  -->
+      <div class="flex items-center gap-3 md:order-2 md:space-x-0 rtl:space-x-reverse">
+        <a href="{% url 'login' %}" class="w-12 h-12 bg-gray-200 flex flex-col items-center justify-center py-2 px-3 text-gray-300 rounded-full group-hover:bg-blue-100 md:group-hover:bg-transparent md:group-hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700" title="Se connecter">
+          <span class="">
+            <svg class="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-width="2" d="M7 17v1c0 .6.4 1 1 1h8c.6 0 1-.4 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+          </span>
+          <span class="hidden">Se connecter</span>
+        </a>
+      </div>
+      <button data-collapse-toggle="navbar-user" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-user" aria-expanded="false">
+        <span class="sr-only">Open main menu</span>
+        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" />
+        </svg>
+      </button>
+    {% endif %}
+
+    <!-- début lien navbar que tous les utilisateurs verrons -->
+    <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
+      <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+        <li>
+          <a href="/" class="block py-2 px-3 text-gray-500 hover:text-black hover:underline hover:bg-blue-500 md:hover:bg-transparent rounded-md transform transition duration-500 hover:scale-105">Accueil</a>
+        </li>
+        <li>
+          <a href="/catalogue/books" class="block py-2 px-3 text-gray-500 hover:text-black hover:underline hover:bg-blue-500 md:hover:bg-transparent rounded-md transform transition duration-500 hover:scale-105">Nos livres</a>
+        </li>
+        <li>
+          <a href="/catalogue/recommended" class="block py-2 px-3 text-gray-500 hover:text-black hover:underline hover:bg-blue-500 md:hover:bg-transparent rounded-md transform transition duration-500 hover:scale-105">Recommandation</a>
+        </li>
+        <li>
+          <a href="/catalogue/authors" class="block py-2 px-3 text-gray-500 hover:text-black hover:underline hover:bg-blue-500 md:hover:bg-transparent rounded-md transform transition duration-500 hover:scale-105">Auteurs</a>
+        </li>
+        <li>
+          <a href="{% url 'contacts:contacts' %}" class="block py-2 px-3 text-gray-500 hover:text-black hover:underline hover:bg-blue-500 md:hover:bg-transparent rounded-md transform transition duration-500 hover:scale-105">Contactez-nous</a>
+        </li>
+        <li></li>
+      </ul>
+    </div>
+    <!-- fin lien navbar que tous les utilisateurs verrons -->
+  </div>
+</nav>
+<!-- fin navbar -->

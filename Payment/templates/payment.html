@@ -1,0 +1,68 @@
+{% extends 'Home.html' %}
+{% block content %}
+  <div class="lg:w-[500px] mx-auto">
+    <h1 class="text-start text-black text-3xl font-bold mb-8">Paiement</h1>
+    <form action="/process-payment" method="post">
+      {% csrf_token %}
+      <div class="mb-5">
+        <label class="font-semibold text-gray-600" for="cardHolder">Titulaire de la carte</label><br />
+        <input type="text" id="cardHolder" name="cardHolder" required placeholder="John Doe" class="px-3 py-4 rounded-lg bg-[#efefef] w-full" />
+      </div>
+
+      <div class="mb-5">
+        <label class="font-semibold text-gray-600" for="cardNumber">Numéro de carte</label><br />
+        <input type="text" id="cardNumber" name="cardNumber" required placeholder="1234 5678 9012 3456" class="px-3 py-4 rounded-lg bg-[#efefef] w-full" />
+      </div>
+
+      <div class="flex gap-x-5 mb-5">
+        <div class="w-1/2">
+          <label class="font-semibold text-gray-600" for="expiryDate">Date d'expiration</label><br />
+          <input type="text" id="expiryDate" name="expiryDate" required placeholder="MM/YY" class="px-3 py-4 rounded-lg bg-[#efefef] w-full" />
+        </div>
+        <div class="w-1/2">
+          <label class="font-semibold text-gray-600" for="cvv">CVV :</label><br />
+          <input type="text" id="cvv" name="cvv" required placeholder="123" class="px-3 py-4 rounded-lg bg-[#efefef] w-full" />
+        </div>
+      </div>
+
+      <div class="mb-5">
+        <label class="font-semibold text-gray-600" for="cardNumber">Addresse de facturation</label><br />
+        <input type="email" id="mail" name="mail" required placeholder="Entrer votre addresse" class="px-3 py-4 rounded-lg bg-[#efefef] w-full" />
+      </div>
+
+      <div class="flex gap-x-5 mb-5">
+        <div class="w-1/2">
+          <label class="font-semibold text-gray-600" for="expiryDate">Ville</label><br />
+          <input type="text" id="expiryDate" name="expiryDate" required placeholder="Entrer votre Ville" class="px-3 py-4 rounded-lg bg-[#efefef] w-full" />
+        </div>
+        <div class="w-1/2">
+          <label class="font-semibold text-gray-600" for="cvv">Code Postal</label><br />
+          <input type="text" id="cvv" name="cvv" required placeholder="12345" class="px-3 py-4 rounded-lg bg-[#efefef] w-full" />
+        </div>
+      </div>
+
+      <div>
+        <input type="submit" value="Valider le paiement" class="px-3 py-4 rounded-lg bg-black text-white block w-full" />
+      </div>
+    </form>
+  </div>
+  <div class="lg:w-[500px] mx-auto">
+    <div class="my-5">
+      <label for="" class="text-start text-black text-xl font-bold ">Mode de Paiement</label>
+    </div>
+    <form action="/process-payment" method="post">
+      {% csrf_token %}
+
+      <div class="px-3 py-4 border-2 mb-2 rounded-lg flex items-center">
+        <input type="radio" id="paypal" name="modePayment" class="bg-black mx-2" />
+        <label class="font-semibold text-gray-600" for="paypal">PayPal</label>
+      </div>
+
+      <div class="px-3 py-4 border-2 mb-2 rounded-lg flex items-center">
+        <input type="radio" id="banquaire" name="modePayment" class="bg-black mx-2" />
+        <label class="font-semibold text-gray-600" for="banquaire">Virement banquaire</label>
+      </div>
+
+    </form>
+  </div>
+{% endblock %}

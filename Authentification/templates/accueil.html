@@ -1,0 +1,178 @@
+{% extends 'Home.html' %}
+
+{% block content %}
+  <div class="w-full h-fit z-40">
+    <div class="image w-full h-96 mb-10" style="height: 100%;">
+      <span class="flex justify-center items-center flex-col py-52">
+        <h1 class="text-start text-white text-4xl transition duration-300 font-bold py-2 px-4 mb-5">Découvrez notre collection de livres</h1>
+        {% comment %} <p class="text-start text-white text-xl transition duration-300 font-bold py-2 px-4 mb-5">Cliquez sur explorer pour continuer avec notre librairie en ligne.</p> {% endcomment %}
+        {% comment %} <button class="z-50 bg-white text-black hover:bg-black hover:text-white transition duration-300 font-bold py-2 px-4 rounded-full w-fit shadow-xl" onclick="toggleBooks()">Explorer plus de livres</button> {% endcomment %}
+      </span>
+      
+    </div>
+    
+    <section class="bg-white py-3 px-5 mb-10 rounded" id="books">
+      <div class="flex justify-between items-center mb-5">
+        <h2 class="text-3xl font-bold mb-3">Les livres</h2>
+        {% comment %} <h2 class="text-3xl font-bold mb-3">Nos livres les plus recommendés</h2> {% endcomment %}
+        <a class=" text-black hover:text-white transition duration-300 font-bold border-2 border-black hover:bg-black rounded-sm px-3 py-2" href="{% url 'books'  %}">Voir plus</a>
+    </div>
+        {% comment %} <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-10 mb-20"> {% endcomment %}
+        <div class="owl-carousel gap-6 mb-10 ">
+        {% for book in liste_books %}
+          <div class="  w-[300px]">
+              <div class="p-2 hover:cursor-pointer">
+              {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }} " alt="Image du book" width="100%" class="hover:shadow-2xl transition-all duration-300 rounded-lg" />
+              {% else %}
+                <p>Pas d'image pour ce livre</p>
+              {% endif %}
+            </div>
+            <div class="text-left mt-4 ml-3">
+                <a href="{% url 'book_detail' book.id %}" class="text-black hover:underline font-semibold">{{ book.title }}</a><br />
+                {% comment %} <p class="my-1">{{ book.author }}</p> {% endcomment %}
+                <p class="my-1">{{ book.published_date|date:"o" }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    </section>
+    {% comment %} Par recommendation  {% endcomment %}
+    <section class="bg-white py-2 px-5 mb-10 rounded" id="books">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-3xl font-bold mb-3">Nos livres les plus recommendés</h2>
+            <a class=" text-black hover:text-white transition duration-300 font-bold border-2 border-black hover:bg-black rounded-sm px-3 py-2" href="{% url 'recommendeds'  %}">Voir plus</a>
+        </div>
+        {% comment %} <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-10 mb-20"> {% endcomment %}
+        <div class=" overflow-auto gap-6 mb-10 " >
+        {% for book in liste_books_recommender %}
+          <div class="flex bg-white mb-5 w-[300px] rounded shadow books">
+            <div class="p-4 px-5 w-1/4 hover:cursor-pointer">
+              {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }} " alt="Image du book" width="100%" class="hover:shadow transition-all duration-300 rounded-lg" />
+              {% else %}
+                <p>Pas d'image pour ce livre</p>
+              {% endif %}
+            </div>
+            <div class="text-left mt-4 ml-3 w-3/4 ">
+                <a href="{% url 'book_detail' book.id %}" class="text-black hover:underline font-bold">{{ book.title }}</a><br />
+                <p class="my-1">{{ book.author }}</p>
+                <p class="mr-4 indent-8 ">{{ book.summary|truncatewords:60 }}</p>
+                {% comment %} <p class="my-1">{{ book.recommended_number}}</p> {% endcomment %}
+                <a href="{% url 'add_to_cart' book.id %}" class="panier px-3 py-2 mt-8 text-black font-bold bg-white shadow-md p-2 rounded-full flex items-center justify-center hover:bg-black hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                      class="bi bi-cart-plus-fill" viewBox="0 0 16 16">
+                      <path
+                        d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M9 5.5V7h1.5a.5.5 0 0 1 0 1H9v1.5a.5.5 0 0 1-1 0V8H6.5a.5.5 0 0 1 0-1H8V5.5a.5.5 0 0 1 1 0" />
+                    </svg> <span class="pl-2">{{book.price}} $</span>
+                  </a>
+            </div>
+        </div>
+        {% endfor %}
+        </div>
+    </section>
+
+  </div>
+  {% comment %} <scrip>
+    function toggleBooks() {
+      var books = document.getElementById('books')
+      if (books) {
+        books.classList.toggle('hidden')
+      }
+    }
+  </script> {% endcomment %}
+  <style>
+    .image {
+      background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../../medias/background.jpg");
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      position: relative;
+      border-radius: 1rem;
+      z-index: -1;
+    }
+    .owl-carousel {
+        margin-bottom: 0; /* Assurez-vous qu'il n'y a pas de marges indésirables */
+        padding-bottom: 0; /* Assurez-vous qu'il n'y a pas de padding indésirable */
+     }
+     .owl-dots {
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        list-style: none;
+        z-index: 1;
+     }
+     .owl-dots .owl-dot{
+        background-color: black;
+     }
+     .prev-btn {
+        display: block;
+        padding: 0; /* Réinitialise le rembourrage */
+        font-size: 16px; /* Taille de la police personnalisée */
+        text-align: center;
+        color: gray;
+        border-radius: 25px;
+        padding: 0.2em 0.4em;
+        margin-left: 1rem; /* Réinitialise*/
+        gap: 0.5em; /**/
+        position: absolute;
+        top: -9%; /* Ajustez la valeur en fonction de votre mise en page */
+        left: 13%; 
+        z-index: 999;
+        
+     }
+     .next-btn {
+        display: block;
+        padding: 0; /* Réinitialise le rembourrage */
+        font-size: 16px; /* Taille de la police personnalisée */
+        text-align: center;
+        border-radius: 25px;
+        padding: 0.2em 0.4em;
+        margin-left: 1rem; /* Réinitialise*/
+        color: gray;
+        gap: 0.5em; /**/
+        position: absolute;
+        top: -9%; /* Ajustez la valeur en fonction de votre mise en page */
+        left: 15%; 
+        z-index: 999;
+        
+     }
+     .books{
+        position: relative; 
+     }
+     .panier{
+        position: absolute;
+        buttom: -10%;
+        right: 2%;
+     }
+  </style>
+  
+  {% endblock %}
+  <script>
+    {% block script %}
+    $(document).ready(function(){
+        $('.owl-carousel').owlCarousel({
+           items: 4,  // Nombre d'articles à afficher à la fois
+           loop: false,  // Boucler le carrousel
+           autoplay: false,  // Auto-play le carrousel
+           // autoplayTimeout: 2000,  // Temps d'attente entre les diapositives en millisecondes
+           items : 4,
+           itemsDesktop : [1199,3],
+           itemsDesktopSmall : [979,3],
+           
+           nav:true,
+           navText: [
+            "<button class='custom-nav-btn prev-btn'><i class='fas fa-chevron-circle-left'></i> </button>",
+            "<button class='custom-nav-btn next-btn'> <i class='fas fa-chevron-circle-right'></i></button>"
+         ],
+           {% comment %} navText: [
+            "<button class='custom-nav-btn prev-btn'><i class='fa-regular fa-chevron-circle-left'></i> </button>",
+            "<button class='custom-nav-btn next-btn'> <i class='fa-regular fa-circle-chevron-right'></i></button>"
+         ] {% endcomment %}
+        });
+     });
+      {% endblock %}
+</script>

@@ -1,0 +1,46 @@
+{% extends "Home.html" %}
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div
+  class="fixed top-[5%] left-[40%] rounded-md p-4 mb-4 {% if message.tags == 'success' %} bg-green-100 text-green-800 {% elif message.tags == 'error' %} bg-red-100 text-red-800 {% endif %} message">
+  <p class="font-bold">{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+<div>
+    <section class="bg-white py-2 px-5 mb-10 rounded" id="books">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-3xl font-bold mb-3">Nos livres les plus recommandés</h2>
+            <a class=" text-black hover:text-white transition duration-300 font-bold border-2 border-black hover:bg-black rounded-sm px-3 py-2" href="{% url 'books'  %}">Voir plus</a>
+        </div>
+        {% comment %} <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-10 mb-20"> {% endcomment %}
+        <div class="grid grid-cols-3 overflow-auto gap-6 mb-10 " >
+        {% for book in our_books_recommended %}
+            <div class="bg-white  mb-5 rounded shadow books">
+                <div class="p-4 px-5 hover:cursor-pointer">
+                  {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }} " alt="Image du book" width="100%" class="hover:shadow transition-all duration-300 rounded-lg" />
+                  {% else %}
+                    <p>Pas d'image pour ce livre</p>
+                  {% endif %}
+                </div>
+                <div class="text-left mt-4 ml-3  ">
+                    <a href="{% url 'book_detail' book.id %}" class="text-black hover:underline font-bold">{{ book.title }}</a><br />
+                    <p class="my-1">{{ book.author }}</p>
+                    {% comment %} <p class="mr-4 indent-8 ">{{ book.summary|truncatewords:100 }}</p> {% endcomment %}
+                    {% comment %} <p class="my-1">{{ book.recommended_number}}</p> {% endcomment %}
+                    <a href="{% url 'add_to_cart' book.id %}" class="panier px-3 py-2 mt-5 mb-2 text-white font-bold bg-black shadow-md p-2 rounded-full flex items-center justify-center hover:bg-white hover:border-2 hover:border-black-500 hover:text-black">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                          class="bi bi-cart-plus-fill" viewBox="0 0 16 16">
+                          <path
+                            d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M9 5.5V7h1.5a.5.5 0 0 1 0 1H9v1.5a.5.5 0 0 1-1 0V8H6.5a.5.5 0 0 1 0-1H8V5.5a.5.5 0 0 1 1 0" />
+                        </svg> <span class="pl-2">{{book.price}} $</span>
+                      </a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

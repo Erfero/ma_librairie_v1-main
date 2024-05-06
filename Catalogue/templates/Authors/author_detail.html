@@ -1,0 +1,64 @@
+{% extends 'Home.html' %}
+<!-- Definir le contenu -->
+{% block content %}
+<!-- Afficher le titre -->
+
+<div class="my-12 max-w-4xl mx-auto">
+  <div class="flex justify-center flex-col items-center">
+    <img class="w-60 h-60 object-fit rounded-full" src="{{ author.image.url }}" alt="Image de l'auteur" />
+    <h1 class="w-fit font-bold mb-8 mt-5">{{ author.name }}</h1>
+  </div>
+
+  <!-- <div class="mb-3">
+      {% for genre in genres %}
+        <span class="font-bold">Le genre de ces livres :</span>
+        <span class="bg-black rounded-lg py-1 px-3 text-white text-sm w-fit">{{ genre }}</span>
+      {% endfor %}
+    </div> -->
+  <hr class="mb-8" />
+  <p id="resumeOne">
+    <span class="underline font-bold block text-start mb-3">Biographie:</span>
+    <span class="block text-justify">{{ author.biography|truncatewords:100 }}</span>
+    <button class="text-blue-500 font-normal" onclick="afficherPlus()">Voir plus</button>
+  </p>
+  <p id="resumeTwo" class="hidden">
+    <span class="underline font-bold block text-start mb-3">Biographie:</span>
+    <span class="block text-justify">{{ author.biography }}</span>
+    <button class="text-blue-500 font-normal" onclick="afficherPlus()">Voir moins</button>
+  </p>
+
+  <hr class="my-8" />
+  <section class="my-8">
+    <!-- Afficher les livres de l'auteur -->
+    <h2 class="font-bold mb-8">Ses livres</h2>
+    <div>
+      {% if books %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {% for book in books %}
+        <div>
+          <img class="h-[15rem] object-fit rounded-md mb-4" src="{{ book.cover_image.url }}" alt="Image de l'auteur" />
+          <a href="{% url 'book_detail' book.id %}" class="text-black font-bold hover:underline">{{book.title}}</a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <li>Aucun livre disponible</li>
+      {% endif %}
+    </div>
+  </section>
+</div>
+<script>
+  function afficherPlus() {
+    const resumeOne = document.getElementById('resumeOne')
+    const resumeTwo = document.getElementById('resumeTwo')
+    if (resumeOne) {
+      resumeOne.classList.toggle('block')
+      resumeTwo.classList.toggle('hidden')
+    }
+    if (resumeOne) {
+      resumeOne.classList.toggle('hidden')
+      resumeTwo.classList.toggle('block')
+    }
+  }
+</script>
+{% endblock %}

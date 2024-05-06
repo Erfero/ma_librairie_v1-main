@@ -1,0 +1,36 @@
+{% extends 'Home.html' %} {% block title %} Contactez {% endblock %} {% block
+content %}
+<div class="mt-40">
+  <form
+    method="post"
+    class="bg-white rounded-lg border border-gray-300 px-8 pt-6 pb-8 mb-4"
+  >
+    {% csrf_token %}
+    <!-- Ajoutez les champs nécessaires pour le formulaire de réponse -->
+    <input type="hidden" name="contact_id" value="{{ contact.id }}" />
+    <div class="mb-4">
+      <label
+        for="id_answer_text{{ contact.id }}"
+        class="block text-start text-gray-500 text-sm font-bold mb-2"
+        >Réponse</label
+      >
+      <textarea
+        id="id_answer_text{{ contact.id }}"
+        name="answer_text"
+        class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-2 focus:outline-none focus:ring-black block w-full p-2.5 resize-none"
+        placeholder="Votre réponse"
+        required
+      >
+{{ form.answer_text.value }}</textarea
+      >
+    </div>
+    <button
+      class="bg-green-500 hover:bg-green-600 text-white text-sm font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      type="submit"
+    >
+      Modifier
+    </button>
+  </form>
+  {{ contact.id }} {{ answer.id }}
+</div>
+{% endblock %}

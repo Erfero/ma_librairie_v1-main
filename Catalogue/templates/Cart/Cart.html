@@ -1,0 +1,189 @@
+{% extends 'Home.html' %}
+{% block content %}
+
+<!-- ***** Bloc d'affichage du message d'erreur ou de succès après validation du panier (Début) ***** -->
+{% if messages %}
+{% for message in messages %}
+<div
+    class="fixed top-[15%] left-[40%] rounded-md p-4 mb-4 {% if message.tags == 'success' %} bg-green-100 text-green-800 {% elif message.tags == 'error' %} bg-red-100 text-red-800 {% endif %} message">
+    <p class="font-bold">{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+<!-- ***** Bloc d'affichage du message d'erreur ou de succès après validation du panier (Fin) ***** -->
+
+
+<!-- ***** Contenu du panier (Début) ***** -->
+<div class="w-[80%] mx-auto h-full">
+    <h1 class="font-bold text-2xl text-black mb-[3rem]">Votre panier</h1>
+    <div class="flex flex-col mt-20">
+        {% if cart_books %}
+        {% for book in cart_books %}
+        <div class="flex gap-10 mb-10">
+            {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }} " alt="Image du book"
+                class="h-[15rem] object-fit rounded-lg w-1/5" />
+            {% else %}
+            <p>Pas d'image pour ce livre</p>
+            {% endif %}
+            <div class="flex flex-col gap-2">
+                <div class="mb-3">
+                    <h2 class="font-semibold text-lg mb-3">{{book.title}}</h2>
+                    <p class="text-md font-semibold">Prix</p>
+                    <p class="text-md">{{book.price}}$</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-md mb-3">Quantité</h3>
+                    <form class="flex flex-col w-[80px]">
+                        <!-- Champ de type nombre avec une valeur par défaut de 1 -->
+                        <input class="mx-1 border-black border-2 text-center p-2 font-semibold rounded-xl bg-gray-200 "
+                            type="number" name="quantity" id="quantity_{{ book.id }}" value="1" min="1"
+                            onchange="updateTotal('{{ book.id }}')">
+
+                        <div class="mt-2">
+                            <!-- Bouton - pour diminuer la valeur -->
+                            <button
+                                class="w-fit border-2 border-black bg-black text-white hover:bg-white hover:text-black p-2 px-4 rounded-xl font-bold text-lg"
+                                type="button" onclick="decrement('{{ book.id }}')">-</button>
+                            <!-- Bouton + pour augmenter la valeur -->
+                            <button
+                                class="w-fit border-2 border-black bg-black text-white hover:bg-white hover:text-black p-2 px-4 rounded-xl font-bold text-lg"
+                                type="button" onclick="increment('{{ book.id }}')">+</button>
+
+                            <a href="{% url 'remove_from_cart' book.id %}"
+                                class="mt-[5rem] bg-red-400 border-red-400 text-white rounded-xl p-3">Retirer du
+                                panier</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="mt-[2rem] mb-20">
+        {% if cart_books %}
+        <div class="flex gap-3 mb-10">
+            <span class="font-bold">Prix total:</span>
+            <h2 id="totalPrice">0$</h2>
+        </div>
+        <a href="javascript:void(0);" onclick="redirectToCheckout()"
+            class="w-[10rem] bg-black text-white p-2 rounded-xl font-bold hover:bg-white hover:text-black border-black border-2">Commander</a>
+
+
+        {% else %}
+        <a href="{% url 'books' %}"
+            class="w-full bg-black text-white p-4 rounded-xl font-bold hover:bg-white hover:text-black border-black border-2">Voir
+            les livres </a>
+        {% endif %}
+    </div>
+</div>
+<!-- ***** Contenu du panier (Fin) ***** -->
+
+<script>
+    /**
+     * Déclaration des variables
+     * **/
+    // Variable qui stocke tout le contenu du panier
+    let cartContent = [];
+
+
+    /**
+     * 
+     * Au chargement de la page 
+     * **/
+    // Afficher le prix total du panier au chargement du panier en faisant appel à la méthode updateTotal
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if cart_books %}
+        updateTotal();
+        {% endif %}
+
+        // Afficher le message de succès ou d'erreur pendant trois secondes, puis disparaître après le paiement
+        setTimeout(function () {
+            let messages = document.querySelectorAll('.message');
+            messages.forEach(function (message) {
+                message.style.display = 'none';
+            });
+        }, 3000);
+    });
+
+    // Stocker chaque élément du panier dans le tableau cartContent
+    {% for book in cart_books %}
+    cartContent.push({
+        id: '{{ book.id }}',
+        price: '{{ book.price }}'
+    });
+    {% endfor %}
+
+
+    /**
+     * 
+     * Méthodes ou fonctions 
+     * **/
+
+    // Fonction pour décrémenter la quantité d'un livre dans le panier
+    function decrement(bookId) {
+        // récupérer la valeur du champ stockant la quantité
+        let quantityInput = document.getElementById('quantity_' + bookId);
+        // Vérifier si la valeur est supérieure à la valeur minimale (1)
+        if (parseInt(quantityInput.value) > 1) {
+            // décrémenter la valeur  du champ
+            quantityInput.value = parseInt(quantityInput.value) - 1;
+            // Appel de la méthode de mise à jour du prix total
+            updateTotal();
+        }
+    }
+
+    // Fonction pour incrémenter la quantité d'un livre dans le panier
+    function increment(bookId) {
+        console.log(bookId)
+        // récupérer la valeur du champ stockant la quantité
+        let quantityInput = document.getElementById('quantity_' + bookId);
+        // incrémenter la valeur  du champ
+        quantityInput.value = parseInt(quantityInput.value) + 1;
+        // Appel de la méthode de mise à jour du prix total
+        updateTotal();
+    }
+
+    // Fonction pour mettre à jour le prix total
+    function updateTotal() {
+        // initialisation du prix total du panier
+        let total = 0;
+        // Parcourir chaque élément du tableau contenant les éléments du panier
+        cartContent.forEach(book => {
+            // Récupérer  la quantité du livre
+            let quantity = parseInt(document.getElementById('quantity_' + book.id).value);
+            // Récupérer le prix du livre
+            let price = parseFloat(book.price.replace(',', '.'));
+            // Calculer  le coût total du panier
+            total += quantity * price;
+        });
+        // Utiliser toLocaleString() pour formater le prix total avec une virgule au lieu du point
+        document.getElementById('totalPrice').textContent = total.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + "$";
+    }
+
+    // Fonction pour rediriger vers la vue de paiement avec les informations du panier et de la quantité
+    function redirectToCheckout() {
+        // Construire l'URL de redirection vers la vue de paiement (checkout)
+        let checkoutUrl = "{% url 'checkout' %}?";
+        let cartContentParam = "cart=" + encodeURIComponent(JSON.stringify(cartContent));
+        let quantitiesParam = "quantities=" + encodeURIComponent(JSON.stringify(getQuantities()));
+
+        // Rediriger vers la vue de paiement avec les informations du panier et de la quantité
+        window.location.href = checkoutUrl + cartContentParam + '&' + quantitiesParam;
+    }
+
+    // Fonction pour récupérer les quantités de chaque livre
+    function getQuantities() {
+        let quantities = [];
+        cartContent.forEach(book => {
+            let quantity = parseInt(document.getElementById('quantity_' + book.id).value);
+            quantities.push(quantity);
+        });
+        return quantities;
+    }
+
+
+</script>
+
+{% endblock %}

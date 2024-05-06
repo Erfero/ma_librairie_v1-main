@@ -1,0 +1,57 @@
+{% extends 'Home.html' %}>{% block content %}
+  <!-- Modal -->
+
+  <div class="modal fade" id="advancedSearchModal" tabindex="-1" role="dialog" aria-labelledby="advancedSearchModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content p-5 shadow-lg hover:cursor-pointer hover:shadow-2xl mt-20 mx-15 rounded-lg bg-yellow-50">
+        <div class="modal-header">
+          <h5 class="modal-title" id="advancedSearchModalLabel">Recherche avancée</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="window.location.href='{% url 'books' %}'"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body text-left">
+          <!-- Ajouter le formulaire de recherche avancée ici -->
+          <form method="POST" action="{% url 'advanced_search' %}">
+            {% csrf_token %}
+            <!-- Champs de recherche avancée -->
+            <!-- Prix -->
+            <div class='flex gap-6'>
+              <div>
+                <label for="min_price">Prix minimum:</label>
+                <input type="number" name="min_price" id="min_price" /><br />
+              </div>
+              <div>
+                <label for="max_price">Prix maximum:</label>
+                <input type="number" name="max_price" id="max_price" />
+              </div>
+            </div>
+            <!-- Trier par prix -->
+            <div>
+              <label for="sort_by_price">Trier par prix:</label><br />
+              <input type="checkbox" id="sort_asc_price" name="sort_by_price" value="ascending" />
+              <label for="sort_asc_price">Prix croissant</label><br />
+              <input type="checkbox" id="sort_desc_price" name="sort_by_price" value="descending" />
+              <label for="sort_desc_price">Prix décroissant</label><br />
+            </div>
+            <!-- Trier par titre -->
+            <div>
+              <label for="sort_by_title">Trier par titre:</label><br />
+              <input type="checkbox" id="sort_asc_title" name="sort_by_title" value="ascending" />
+              <label for="sort_asc_title">Titre A-Z</label><br />
+              <input type="checkbox" id="sort_desc_title" name="sort_by_title" value="descending" />
+              <label for="sort_desc_title">Titre Z-A</label><br />
+            </div>
+            <!-- Trier par auteur -->
+            <div>
+              <label for="sort_by_author">Trier par auteur:</label><br />
+              <input type="checkbox" id="sort_asc_author" name="sort_by_author" value="ascending" />
+              <label for="sort_asc_author">Auteur A-Z</label><br />
+              <input type="checkbox" id="sort_desc_author" name="sort_by_author" value="descending" />
+              <label for="sort_desc_author">Auteur Z-A</label><br />
+            </div>
+            <button type="submit" class="text-center bg-blue-900 text-gray-100 font-semibold py-2 px-3 rounded-md my-3 transition easy-in-out duration-500 hover:scale-105">Appliquer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

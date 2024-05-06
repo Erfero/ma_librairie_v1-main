@@ -1,0 +1,282 @@
+<script type="text/javascript">
+
+    $(document).ready(function() {
+      let categorie = 0
+
+      $('#categorie').change(function() {
+        categorie = $(this).val();
+        console.log(categorie)
+
+        if (categorie != "all") {
+          $.ajax({
+            url: '/filtrer-categorie/',
+            data: {'categorie': categorie},
+            dataType: 'html',
+            success: function(response) {
+                $('#allBook').empty(); 
+                let books = JSON.parse(response).livres
+                $.each(books, function(index, book) {
+                let data = `
+                <div class="bg-white rounded-lg overflow-hidden text-center relative w-[60%] sm:w-[80%] h-auto mx-auto">
+                  <div class="group overflow-hidden">
+                    <img
+                      src="${book.cover_picture}"
+                      alt="Nom du livre"
+                      class="w-full h-[20rem] object-cover transition-transform transform group-hover:scale-105"
+                    />
+                    <!-- Ajout de l'icône d'œil pour visualiser le livre -->
+                    <div
+                      class="absolute inset-0 flex items-center justify-center w-full h-[20rem] text-white duration-300 opacity-0 group-hover:opacity-100 bg-[#00000070]"
+                    >
+                      <!-- Icône d'œil pour visualiser le livre -->
+                      <a href="/books/details/${book.id}" title="Visualiser le livre">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="30"
+                          height="30"
+                          fill="currentColor"
+                          class="bi bi-eye-fill"
+                          viewBox="0 0 16 16"
+                        >
+                          <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                          <path
+                            d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"
+                          />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="p-4">
+                    <h3 class="text-xl font-semibold text-[#2a2f6d] mb-2">
+                      ${book.title}
+                    </h3>
+                    <p class="text-[#09a9aa] mb-2 font-bold text-xl">${book.price}</p>
+                    <div class="flex items-center space-x-2 mb-4"></div>
+                    <div class="flex justify-around items-center">
+                      <!-- Bouton Ajouter au panier -->
+                      <a
+                        href="#_"
+                        class="relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden font-medium transition duration-300 ease-out border-2 border-[#09a9aa] rounded-full shadow-md group"
+                      >
+                        <span
+                          class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#09a9aa] group-hover:translate-x-0 ease"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="30"
+                            height="30"
+                            fill="currentColor"
+                            class="bi bi-bag-plus"
+                            viewBox="0 0 16 16"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5"
+                            />
+                            <path
+                              d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+                            />
+                          </svg>
+                        </span>
+                        <span
+                          class="absolute flex items-center justify-center w-full h-full text-[#09a9aa] transition-all duration-300 transform group-hover:translate-x-full ease"
+                          >Ajouter au panier</span
+                        >
+                        <span class="relative invisible">Ajouter au panier</span>
+                      </a>
+                    </div>
+                  </div>
+                </div> 
+                `
+                $("#allBook").append(data);
+                
+              })
+            }
+          })
+        } else {
+          $.ajax({
+            url: window.location.pathname,
+            data : {
+              'param' : categorie
+            },
+            success : function(response) {
+              $('#allBook').empty(); 
+              let books = response.books
+             
+              $.each(books, function(index, book) {
+                let data = `
+              <div class="bg-white rounded-lg overflow-hidden text-center relative w-[60%] sm:w-[80%] h-auto mx-auto">
+          <div class="group overflow-hidden">
+            <img
+              src="${book.cover_picture}"
+              alt="Nom du livre"
+              class="w-full h-[20rem] object-cover transition-transform transform group-hover:scale-105"
+            />
+            <!-- Ajout de l'icône d'œil pour visualiser le livre -->
+            <div
+              class="absolute inset-0 flex items-center justify-center w-full h-[20rem] text-white duration-300 opacity-0 group-hover:opacity-100 bg-[#00000070]"
+            >
+              <!-- Icône d'œil pour visualiser le livre -->
+              <a href="/books/details/${book.id}" title="Visualiser le livre">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="30"
+                  height="30"
+                  fill="currentColor"
+                  class="bi bi-eye-fill"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                  <path
+                    d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="text-xl font-semibold text-[#2a2f6d] mb-2">
+              ${book.title}
+            </h3>
+            <p class="text-[#09a9aa] mb-2 font-bold text-xl">${book.price}</p>
+            <div class="flex items-center space-x-2 mb-4"></div>
+            <div class="flex justify-around items-center">
+              <!-- Bouton Ajouter au panier -->
+              <a
+                href="#_"
+                class="relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden font-medium transition duration-300 ease-out border-2 border-[#09a9aa] rounded-full shadow-md group"
+              >
+                <span
+                  class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#09a9aa] group-hover:translate-x-0 ease"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="30"
+                    height="30"
+                    fill="currentColor"
+                    class="bi bi-bag-plus"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5"
+                    />
+                    <path
+                      d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+                    />
+                  </svg>
+                </span>
+                <span
+                  class="absolute flex items-center justify-center w-full h-full text-[#09a9aa] transition-all duration-300 transform group-hover:translate-x-full ease"
+                  >Ajouter au panier</span
+                >
+                <span class="relative invisible">Ajouter au panier</span>
+              </a>
+            </div>
+          </div>
+        </div> 
+              `
+              $('#allBook').append(data);
+              })
+            }
+          })
+        }
+      })
+
+      $('#search-dropdown').keyup(function() {
+        // Récupération de la donnée insérer dans le champs de recherche
+        let search = $(this).val();
+
+        $.ajax({
+          url : '/search/', 
+          data: {
+                'search' : search, 
+                'categorie' : categorie
+                },
+          dataType : 'html',
+          success : function(response) {
+            $('#allBook').empty();
+
+            let books = JSON.parse(response).books
+            $.each(books, function(index, book) {
+              let data = `
+              <div class="bg-white rounded-lg overflow-hidden text-center relative w-[60%] sm:w-[80%] h-auto mx-auto">
+          <div class="group overflow-hidden">
+            <img
+              src="${book.cover_picture}"
+              alt="Nom du livre"
+              class="w-full h-[20rem] object-cover transition-transform transform group-hover:scale-105"
+            />
+            <!-- Ajout de l'icône d'œil pour visualiser le livre -->
+            <div
+              class="absolute inset-0 flex items-center justify-center w-full h-[20rem] text-white duration-300 opacity-0 group-hover:opacity-100 bg-[#00000070]"
+            >
+              <!-- Icône d'œil pour visualiser le livre -->
+              <a href="/books/details/${book.id}" title="Visualiser le livre">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="30"
+                  height="30"
+                  fill="currentColor"
+                  class="bi bi-eye-fill"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+                  <path
+                    d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="text-xl font-semibold text-[#2a2f6d] mb-2">
+              ${book.title}
+            </h3>
+            <p class="text-[#09a9aa] mb-2 font-bold text-xl">${book.price}</p>
+            <div class="flex items-center space-x-2 mb-4"></div>
+            <div class="flex justify-around items-center">
+              <!-- Bouton Ajouter au panier -->
+              <a
+                href="#_"
+                class="relative inline-flex items-center justify-center p-4 px-6 py-3 overflow-hidden font-medium transition duration-300 ease-out border-2 border-[#09a9aa] rounded-full shadow-md group"
+              >
+                <span
+                  class="absolute inset-0 flex items-center justify-center w-full h-full text-white duration-300 -translate-x-full bg-[#09a9aa] group-hover:translate-x-0 ease"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="30"
+                    height="30"
+                    fill="currentColor"
+                    class="bi bi-bag-plus"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5"
+                    />
+                    <path
+                      d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+                    />
+                  </svg>
+                </span>
+                <span
+                  class="absolute flex items-center justify-center w-full h-full text-[#09a9aa] transition-all duration-300 transform group-hover:translate-x-full ease"
+                  >Ajouter au panier</span
+                >
+                <span class="relative invisible">Ajouter au panier</span>
+              </a>
+            </div>
+          </div>
+        </div> 
+              `
+              $('#allBook').append(data);
+            })
+
+          }
+        })
+      })
+    })
+
+  </script>

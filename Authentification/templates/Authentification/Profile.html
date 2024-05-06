@@ -1,0 +1,122 @@
+{% extends 'Home.html' %}
+{% block title %}
+  Espace Compte
+{% endblock %}
+{% block content %}
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-4">Espace Compte</h1>
+    <!-- Bloc pour afficher les informations de l'utilisateur -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-2">Informations Personnelles</h2>
+      <!-- Affichage des erreurs éventuelles -->
+      {% if error_message %}
+        <div class="mb-4">
+          <p class="mb-4 bg-red-200 text-red-800 p-3 rounded">{{ error_message }}</p>
+        </div>
+      {% endif %}
+      <form method="post" action="{% url 'edit_profile' %}" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label for="username" class="block text-gray-700 font-bold mb-2">Nom d'utilisateur</label>
+          <input type="text" id="username" name="username" value="{{ user.username }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        </div>
+        <div class="mb-4">
+          <label for="first_name" class="block text-gray-700 font-bold mb-2">Prénom</label>
+          <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        </div>
+        <div class="mb-4">
+          <label for="last_name" class="block text-gray-700 font-bold mb-2">Nom</label>
+          <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        </div>
+        <div class="mb-4">
+          <label for="email" class="block text-gray-700 font-bold mb-2">Adresse Email</label>
+          <input type="email" id="email" name="email" value="{{ user.email }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        </div>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Enregistrer</button>
+      </form>
+    </div>
+    <!-- Bloc pour modifier le mot de passe -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-2">Modifier le mot de passe</h2>
+      <!-- Affichage des erreurs éventuelles -->
+      {% if error_message_password %}
+        <div class="mb-4">
+          <!-- <p class="text-red-500">{{ error_message_password }}</p> -->
+        </div>
+      {% endif %}
+      <form method="post" action="{% url 'change-password' %}" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label for="old_password" class="block text-gray-700 font-bold mb-2">Ancien Mot de Passe</label>
+          <input type="password" id="old_password" name="old_password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        </div>
+        <div class="mb-4">
+          <label for="new_password1" class="block text-gray-700 font-bold mb-2">Nouveau Mot de Passe</label>
+          <input type="password" id="new_password1" name="new_password1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        </div>
+        <div class="mb-4">
+          <label for="new_password2" class="block text-gray-700 font-bold mb-2">Confirmer le Nouveau Mot de Passe</label>
+          <input type="password" id="new_password2" name="new_password2" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+        </div>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Changer le Mot de Passe</button>
+      </form>
+    </div>
+
+<!-- {% if user.is_superuser %} -->
+    <!-- Afficher les messages de contact -->
+    {% if contacts %}
+      {% for contact in contacts %}
+        <div class="relative">
+          <h2 class="text-2xl my-5">Boîte de contact</h2>
+          <!-- Section contact -->
+          <div class="p-6 border border-gray-200 bg-white rounded-lg dark:bg-gray-800 dark:border-gray-700 mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <a href="mailto:{{ contact.email }}" class="hover:underline hover:text-blue-500"><h5 class="text-sm font-bold tracking-tight text-gray-900 dark:text-white text-start">{{ contact.name }}</h5></a>
+              <span class="text-gray-500">
+                {% if contact.created_at != contact.updated_at %}
+                  <small class="text-muted">modifié le {{ contact.updated_at|date:'d M à H:i' }}</small>
+                {% else %}
+                  <small class="text-muted">envoyé le {{ contact.created_at|date:'d M à H:i' }}</small>
+                {% endif %}
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <p class="font-normal text-justify text-sm text-gray-500">{{ contact.message }}</p>
+              <p class="flex items-center">
+                <a href="mailto:{{ contact.email }}" class="w-fit flex items-center text-sm font-medium text-center" title="Répondre">
+                  <svg class="w-6 h-6 text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.5 8H11V6.1c0-.9-.9-1.4-1.5-.9L4.4 9.7a1.2 1.2 0 0 0 0 1.8l5 4.4c.7.6 1.6 0 1.6-.8v-2h2a3 3 0 0 1 3 3V19a5.6 5.6 0 0 0-1.5-11Z" />
+                  </svg>
+                </a>
+                <a href="{% url 'contacts:edit_contact' contact.id %}" class="w-fit flex items-center text-sm font-medium text-center" title="Modifier">
+                  <svg class="w-6 h-6 text-emerald-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M11.3 6.2H5a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h11c1.1 0 2-1 2-2.1V11l-4 4.2c-.3.3-.7.6-1.2.7l-2.7.6c-1.7.3-3.3-1.3-3-3.1l.6-2.9c.1-.5.4-1 .7-1.3l3-3.1Z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M19.8 4.3a2.1 2.1 0 0 0-1-1.1 2 2 0 0 0-2.2.4l-.6.6 2.9 3 .5-.6a2.1 2.1 0 0 0 .6-1.5c0-.2 0-.5-.2-.8Zm-2.4 4.4-2.8-3-4.8 5-.1.3-.7 3c0 .3.3.7.6.6l2.7-.6.3-.1 4.7-5Z" clip-rule="evenodd" />
+                  </svg>
+                </a>
+                <a href="{% url 'contacts:delete_contact' contact.id %}" class="w-fit flex items-center text-sm font-medium text-center" title="Supprimer">
+                  <svg class="w-6 h-6 text-red-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M8.6 2.6A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2-2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4c0-.5.2-1 .6-1.4ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clip-rule="evenodd" />
+                  </svg>
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center text-gray-500 mt-20">
+        <p>Pas de message de contact disponible pour le moment. Revenez plus tard!</p>
+      </div>
+    {% endif %}
+<!-- {% endif %} -->
+  </div>
+  <script>
+    function toggleReplyForm(contactId) {
+      var replyForm = document.getElementById('replyForm' + contactId)
+      if (replyForm) {
+        replyForm.classList.toggle('hidden')
+      }
+    }
+  </script>
+{% endblock %}

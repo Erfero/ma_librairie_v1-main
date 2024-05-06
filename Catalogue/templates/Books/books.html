@@ -1,0 +1,558 @@
+{% extends 'Home.html' %}
+{% block content %}
+
+<!-- Le contenu du modal de filtrage -->
+<div id="filterModal"
+  class="modal hidden fixed inset-0 bg-gray-500 bg-opacity-75 overflow-y-auto z-50 flex justify-center items-center">
+  <div class="modal-dialog mx-auto mt-10 relative max-w-lg relative">
+    <div class="modal-content bg-white p-5 rounded-lg">
+      <h1 class="text-center mb-10 font-bold">Filter et Trier</h2>
+        <button type="button"
+          class="absolute top-0 right-0 text-white dark:text-black bg-black dark:bg-white px-3 py-[.7] m-1 rounded-md hover:text-black hover:bg-gray-200 transition duration-300"
+          onclick="closeModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <!-- Ajouter le formulaire de recherche -->
+        <form id="filterForm">
+          {% csrf_token %}
+          <!-- Champs de recherche avancée -->
+          <!-- Prix -->
+          <div>
+            <label for="" class="font-semibold">Prix :</label>
+            <div class="flex gap-6">
+              <input type="number" name="min_price" placeholder="minimum" id="min_price"
+                class="w-1/2 border border-gray-100 rounded-md px-4 py-1" min="0" max="9999999" />
+              <input type="number" name="max_price" placeholder="maximum" id="max_price"
+                class="w-1/2 border border-gray-100 rounded-md px-4 py-1" min="0" max="9999999" />
+            </div>
+          </div>
+          <!-- Trier par prix -->
+          <div class="my-5">
+            <label for="sort_by_price" class="font-semibold">Trier par prix:</label>
+            <div class="flex gap-2 my-1 justify-between">
+              <div>
+                <input type="radio" id="sort_asc_price" name="sort_by_price" value="ascending" class="rounded-md" />
+                <label for="sort_asc_price">Prix croissant</label>
+              </div>
+              <div>
+                <input type="radio" id="sort_desc_price" name="sort_by_price" value="descending" />
+                <label for="sort_desc_price">Prix décroissant</label>
+              </div>
+            </div>
+          </div>
+          <!-- Trier par titre -->
+          <div class="my-5">
+            <label for="sort_by_title" class="font-semibold">Trier par titre:</label>
+            <div class="flex gap-2 my-1 justify-between">
+              <div>
+                <input type="radio" id="sort_asc_title" name="sort_by_title" value="ascending" />
+                <label for="sort_asc_title">Titre A-Z</label>
+              </div>
+              <div>
+                <input type="radio" id="sort_desc_title" name="sort_by_title" value="descending" />
+                <label for="sort_desc_title">Titre Z-A</label>
+              </div>
+            </div>
+          </div>
+          <!-- Trier par auteur -->
+          <div class="mb-5">
+            <label for="sort_by_author" class="font-semibold">Trier par auteur:</label>
+            <div class="flex gap-2 my-1 justify-between">
+              <div>
+                <input type="radio" id="sort_asc_author" name="sort_by_author" value="ascending" />
+                <label for="sort_asc_author">Auteur A-Z</label>
+              </div>
+              <div>
+                <input type="radio" id="sort_desc_author" name="sort_by_author" value="descending" />
+                <label for="sort_desc_author">Auteur Z-A</label>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between">
+            <button type="submit"
+              class="lg:block text-white dark:text-black bg-black dark:bg-white px-3 py-1 rounded-md hover:text-black my-2 hover:bg-gray-200 transition duration-300 mx-auto">
+              Appliquer
+            </button>
+            <button id="resetButton" type="button"
+              class="lg:block hover:text-black text-white dark:text-black bg-blue-600 dark:bg-white px-3 py-1 rounded-md hover:bg-blue-600 my-2 hover:bg-gray-200 transition duration-300 mx-auto">
+              Reset
+            </button>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+<div class="block">
+  <form id="replyForm" class="flex items-center gap-2 w-full mb-3" action="{% url 'search' %}">
+    {% csrf_token %}
+    <div class="w-full">
+      <div class="relative">
+        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+          <svg class="ml-2 w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+          </svg>
+        </div>
+        <input type="search" id="basicSearchForm" name="search_value"
+          class="block w-full py-2 pl-10 text-sm text-gray-900 rounded-full focus:outline-none focus:ring-2 focus:ring-black border border-gray-300"
+          placeholder="Rechercher par titre, auteur ou catégorie..." required />
+        <button type="submit"
+          class="absolute right-0 bottom-0 text-white bg-black hover:text-black hover:bg-gray-300 focus:ring-2 focus:outline-none focus:ring-black font-medium rounded-full text-sm px-4 py-2.5">Rechercher</button>
+      </div>
+    </div>
+  </form>
+  <div class="flex justify-between mb-8">
+    <button onclick="resetBasicSearchForm()"
+      class="flex items-center bg-gray-300 text-black py-1 px-4 rounded-full">Reset</button>
+    <span class="">
+      <button id="openFilterModalBtn"
+        class="flex gap-2 items-center bg-gray-300 text-black px-3 py-1 hover:text-white hover:bg-black rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-filter"
+          viewBox="0 0 16 16">
+          <path
+            d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5" />
+        </svg>
+        <span class="">Filtrer</span>
+      </button>
+    </span>
+  </div>
+</div>
+
+{% if messages %}
+{% for message in messages %}
+<div
+  class="fixed top-[5%] left-[40%] rounded-md p-4 mb-4 {% if message.tags == 'success' %} bg-green-100 text-green-800 {% elif message.tags == 'error' %} bg-red-100 text-red-800 {% endif %} message">
+  <p class="font-bold">{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+<div id="FilterBook" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 gap-y-10 mb-5">
+
+</div>
+
+<div id="pagination" class="flex justify-center mb-10">
+
+</div>
+
+<div class="flex justify-center items-center mb-5">
+  <h2 class="text-3xl font-semibold mb-3 text-center">Derniers livres de parutions à la librairie</h2>
+  {% comment %} <a
+    class=" text-black hover:text-white transition duration-300 font-bold border-2 border-black hover:bg-black rounded-sm px-3 py-2"
+    href="{% url 'recommendeds'  %}">Voir plus</a> {% endcomment %}
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 py-6 px-4 bg-white gap-y-10 mb-20">
+  {% if books %}
+  {% for book in books %}
+  <div class="bg-white shadow-lg px-3 py-4 rounded-md">
+    <div class="">
+      {% if book.cover_image %}
+      <img src="{{ book.cover_image.url }} " alt="Image du book" width="100%" class="h-[25rem] object-fit rounded-lg" />
+      {% else %}
+      <p>Pas d'image pour ce livre</p>
+      {% endif %}
+    </div>
+    <div class="text-left mt-4">
+      <a href="{% url 'book_detail' book.id %}" class="text-black hover:underline font-semibold">{{ book.title }}</a><br />
+      <p class="my-1">{{ book.author }}</p>
+      <div class="flex justify-end items-center mt-5 relative">
+        <a href="{% url 'add_to_cart' book.id %}"
+          class="px-3 py-2 block text-black font-bold bg-white shadow p-2 rounded-md flex items-center justify-center hover:bg-black hover:text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+            class="bi bi-cart-plus-fill" viewBox="0 0 16 16">
+            <path
+              d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M9 5.5V7h1.5a.5.5 0 0 1 0 1H9v1.5a.5.5 0 0 1-1 0V8H6.5a.5.5 0 0 1 0-1H8V5.5a.5.5 0 0 1 1 0" />
+          </svg>
+          <span class="ml-2">{{ book.price }} $</span>
+        </a>
+        {% comment %} <a href="{% url 'book_detail' book.id %}"
+          class="px-3 py-2 text-black font-semibold hover:underline">Voir
+          plus...</a> {% endcomment %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div>
+    <p>Pas de livre disponible pour le moment. Revenez plus tard !</p>
+  </div>
+  {% endif %}
+</div>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    resetBasicSearchForm();
+  });
+
+  // Fonction pour gérer la soumission du formulaire de recherche
+  function handleSearchFormSubmit(event) {
+    event.preventDefault(); // Empêche l'envoi du formulaire par défaut
+
+    // Récupérer les données du formulaire de recherche
+    const formData = new FormData(document.getElementById('replyForm'));
+    const searchValue = formData.get('search_value');
+    const csrfToken = formData.get('csrfmiddlewaretoken'); // Récupérer le jeton CSRF
+
+    // Envoyer une requête AJAX au serveur
+    $.ajax({
+      url: '/catalogue/books/search',
+      type: 'GET',
+      data: {
+        search_value: searchValue,
+        csrfmiddlewaretoken: csrfToken // Inclure le jeton CSRF dans les données de la requête
+      },
+      success: function (data) {
+        $('#FilterBook').empty();
+        $('#pagination').empty();
+        let searchResults = data.books
+        $.each(searchResults, function (index, result) {
+          let book = `
+            <div>
+                <div>
+        <img src="/medias/${result.cover_image}" alt="Image du book" width="100%" class="h-[25rem] object-fit rounded-lg" />
+      </div>
+      <div class="text-left mt-4">
+        <a href="/catalogue/book_detail/${result.id}" class="text-black hover:underline font-bold">${result.title}</a><br />
+        <p class="my-1">${result.author_name}</p>
+        <h3 class="font-medium text-gray-500 mb-1">${result.price}</h3>
+        <div class="flex justify-between mt-5">
+          <a href="/catalogue/books/add_to_cart/${result.id}"
+            class="px-3 py-2 text-black font-bold bg-white shadow-md p-2 rounded-full flex items-center justify-center hover:bg-black hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+              class="bi bi-cart-plus-fill" viewBox="0 0 16 16">
+              <path
+                d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M9 5.5V7h1.5a.5.5 0 0 1 0 1H9v1.5a.5.5 0 0 1-1 0V8H6.5a.5.5 0 0 1 0-1H8V5.5a.5.5 0 0 1 1 0" />
+            </svg>
+          </a>
+          <a href="/catalogue/books/${result.id}" class="px-3 py-2 text-black font-semibold hover:underline">Voir
+            plus...</a>
+        </div>
+      </div>
+      </div>`
+          let paginate = ``;
+          $('#FilterBook').append(book);
+          $('#pagination').append(paginate);
+        });
+        resetForm()
+      },
+      error: function (error) {
+        console.error(error);
+      }
+    });
+  }
+
+  function resetBasicSearchForm() {
+    document.getElementById('basicSearchForm').value = '';
+    const searchValue = '';
+
+    // Envoyer une requête AJAX au serveur
+    $.ajax({
+      url: '/catalogue/books/search',
+      type: 'GET',
+      data: {
+        search_value: searchValue,
+      },
+      success: function (data) {
+        $('#FilterBook').empty();
+        $('#pagination').empty();
+        let books = data.books
+        let paginate = `
+        <div class="flex justify-center mt-20">
+      <ul class="flex">
+        {% if books.has_previous %}
+          <li>
+            <a class="flex gap-2 items-center justify-center px-3 h-8 me-3 text-sm font-bold text-black bg-white border border-black rounded-lg hover:bg-black hover:text-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" href="?page={{ books.previous_page_number }}">
+              <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4" />
+              </svg>Précédent
+            </a>
+          </li>
+        {% endif %}
+        <li>
+          <a class="flex mx-3 items-center justify-center px-3 h-8 me-3 text-sm font-bold text-white border border-black rounded-lg bg-black hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" href="?page={{ books.number }}">{{ books.number }}</a>
+        </li>
+        {% if books.has_next %}
+          <li>
+            <a class="flex gap-2 items-center justify-center px-3 h-8 me-3 text-sm font-bold text-black bg-white border border-black rounded-lg hover:bg-black hover:text-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" href="?page={{ books.next_page_number }}">
+              Suivant
+              <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+              </svg>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+        `
+        $('#pagination').append(paginate);
+        $.each(books, function (index, book) {
+          let data = `
+            <div class="bg-white shadow-lg px-3 py-4 rounded-md">
+                <div>
+                  <img src="/medias/${book.cover_image}" alt="Image du book" width="100%" class="h-[25rem] object-fit rounded-lg" />
+      </div>
+      <div class="text-left mt-4">
+      <a href="/catalogue/book_detail/${book.id}" class="text-black hover:underline font-semibold">${book.title}</a><br />
+      <p class="my-1">${ book.author_name }</p>
+      {% comment %} <h3 class="font-medium text-gray-500 mb-1">${book.price}</h3> {% endcomment %}
+      <div class="flex justify-end items-center mt-5 relative">
+        <a href="/catalogue/books/add_to_cart/${book.id}" class="px-3 py-2 block text-black font-bold bg-white shadow p-2 rounded-md flex items-center justify-center hover:bg-black hover:text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+            class="bi bi-cart-plus-fill" viewBox="0 0 16 16">
+            <path
+              d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M9 5.5V7h1.5a.5.5 0 0 1 0 1H9v1.5a.5.5 0 0 1-1 0V8H6.5a.5.5 0 0 1 0-1H8V5.5a.5.5 0 0 1 1 0" />
+          </svg>
+          <span class="ml-2">${book.price} $</span>
+        </a>
+        {% comment %} <a href="/catalogue/book_detail/${book.id}" class="px-3 py-2 text-black font-semibold hover:underline">Voir
+          plus...</a> {% endcomment %}
+      </div>
+    </div>
+      </div>
+                `
+          $('#FilterBook').append(data);
+        });
+      },
+      error: function (error) {
+        console.error(error);
+      }
+    });
+  }
+
+
+  // Ajouter un écouteur d'événements pour la soumission du formulaire de recherche
+  document.getElementById('replyForm').addEventListener('submit', handleSearchFormSubmit);
+
+  function toggleReplyForm() {
+    var replyForm = document.getElementById('replyForm')
+    if (replyForm) {
+      replyForm.classList.toggle('hidden')
+    }
+  }
+
+
+  // Fonction pour afficher le modal au clic sur le bouton Filtrer
+  const openFilterModalBtn = document.getElementById("openFilterModalBtn");
+  const filterModal = document.getElementById("filterModal");
+
+  openFilterModalBtn.addEventListener("click", function () {
+    filterModal.classList.remove("hidden");
+  });
+
+  // Fonction pour fermer le modal en cliquant en dehors de celui-ci
+  filterModal.addEventListener("click", function (event) {
+    if (event.target === filterModal) {
+      filterModal.classList.add("hidden");
+    }
+  });
+
+  // Fonction pour fermer le modal
+  function closeModal() {
+    const filterModal = document.getElementById("filterModal");
+    filterModal.classList.add("hidden");
+  }
+
+  // Récupérer le formulaire de votre modal
+  const filterForm = document.getElementById("filterForm");
+
+
+  // Fonction pour enregistrer les valeurs du formulaire dans le stockage local
+  function saveFormValues() {
+    const formData = new FormData(filterForm);
+    formData.forEach((value, key) => {
+      // Vérifier si la valeur est négative
+      if (key === 'min_price' || key === 'max_price') {
+        if (parseInt(value) < 0) {
+          // Remplacer les valeurs négatives par 0
+          formData.set(key, 0);
+          // Afficher un message d'erreur (vous pouvez personnaliser ceci selon vos besoins)
+          alert("Les valeurs négatives ne sont pas autorisées pour les prix.");
+        }
+      }
+    });
+
+    // Ajouter un écouteur d'événements pour la soumission du formulaire de recherche
+    filterForm.addEventListener('submit', handleAdvancedFilterForm);
+
+    function handleAdvancedFilterForm(event) {
+      event.preventDefault();
+
+      // Récupérer les données du formulaire de recherche
+      const formData = new FormData(filterForm);
+      const minPrice = formData.get('min_price');
+      const maxPrice = formData.get('max_price');
+      const sortByPrice = formData.get('sort_by_price');
+      const sortByTitle = formData.get('sort_by_title');
+      const sortByAuthor = formData.get('sort_by_author');
+      const csrfToken = formData.get('csrfmiddlewaretoken');
+
+      // Envoyer une requête AJAX au serveur
+      $.ajax({
+        url: '/catalogue/books/advanced_search',
+        type: 'GET',
+        data: {
+          min_price: minPrice,
+          max_price: maxPrice,
+          sort_by_price: sortByPrice,
+          sort_by_title: sortByTitle,
+          sort_by_author: sortByAuthor,
+          csrfmiddlewaretoken: csrfToken // Inclure le jeton CSRF dans les données de la requête
+        },
+        success: function (data) {
+          $('#FilterBook').empty();
+          $('#pagination').empty();
+          let searchResults = data.books
+          $.each(searchResults, function (index, result) {
+            let book = `
+            <div>
+                <div>
+        <img src="/medias/${result.cover_image}" alt="Image du book" width="100%" class="h-[25rem] object-fit rounded-lg" />
+      </div>
+      <div class="text-left mt-4">
+        <a href="/catalogue/book_detail/${result.id}" class="text-black hover:underline font-bold">${result.title}</a><br />
+        <p class="my-1">${result.author_name}</p>
+        <h3 class="font-medium text-gray-500 mb-1">${result.price}</h3>
+        <div class="flex justify-between mt-5">
+          <a href="/catalogue/books/add_to_cart/${result.id}"
+            class="px-3 py-2 text-black font-bold bg-white shadow-md p-2 rounded-full flex items-center justify-center hover:bg-black hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+              class="bi bi-cart-plus-fill" viewBox="0 0 16 16">
+              <path
+                d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M9 5.5V7h1.5a.5.5 0 0 1 0 1H9v1.5a.5.5 0 0 1-1 0V8H6.5a.5.5 0 0 1 0-1H8V5.5a.5.5 0 0 1 1 0" />
+            </svg>
+          </a>
+          <a href="/catalogue/books/${result.id}" class="px-3 py-2 text-black font-semibold hover:underline">Voir
+            plus...</a>
+        </div>
+      </div>
+      </div>
+                `
+            let paginate = ``;
+            $('#pagination').append(paginate);
+            $('#FilterBook').append(book);
+            closeModal()
+          });
+          document.getElementById('basicSearchForm').value = '';
+        },
+        error: function (error) {
+          console.error(error);
+        }
+      });
+
+
+    }
+
+    /***
+     * Enregistrement des données du formulaire de recherche avancé dans le localStorage
+    */
+
+    // Enregistrer les valeurs mises à jour dans le stockage local
+    for (const [key, value] of formData.entries()) {
+      localStorage.setItem(key, value);
+    }
+
+    // Enregistrer les états des cases à cocher dans le stockage local
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach((checkbox) => {
+      localStorage.setItem(checkbox.id, checkbox.checked);
+    });
+  }
+
+  // Fonction pour charger les valeurs du formulaire depuis le stockage local
+  function loadFormValues() {
+    const formData = new FormData(filterForm);
+    for (const [key, value] of formData.entries()) {
+      const storedValue = localStorage.getItem(key);
+      if (storedValue !== null) {
+        filterForm.elements[key].value = storedValue;
+      }
+    }
+
+    // Charger les états des cases à cocher depuis le stockage local
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach((checkbox) => {
+      const storedChecked = localStorage.getItem(checkbox.id);
+      if (storedChecked !== null) {
+        checkbox.checked = JSON.parse(storedChecked);
+      }
+    });
+  }
+
+  // Fonction pour réinitialiser le formulaire et effacer les valeurs stockées dans le stockage local
+  function resetForm() {
+    filterForm.reset(); // Réinitialiser le formulaire
+    localStorage.clear(); // Effacer les valeurs stockées dans le stockage local
+
+    // Réinitialiser les valeurs des cases à cocher
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+  }
+
+  // Ajouter des écouteurs d'événements pour sauvegarder les valeurs du formulaire et charger les valeurs sauvegardées
+  filterForm.addEventListener("input", saveFormValues);
+  window.addEventListener("load", loadFormValues);
+
+  // Ajouter un gestionnaire d'événements au bouton "Reset" pour réinitialiser le formulaire
+  const resetButton = document.getElementById("resetButton");
+  resetButton.addEventListener("click", function () {
+    resetForm()
+    // Envoyer une requête AJAX au serveur
+    $.ajax({
+      url: '/catalogue/books/advanced_search',
+      type: 'GET',
+      data: {
+        min_price: '',
+        max_price: '',
+        sort_by_price: '',
+        sort_by_title: '',
+        sort_by_author: '',
+      },
+      success: function (data) {
+        $('#FilterBook').empty();
+        $('#pagination').empty();
+        let searchResults = data.books
+        $.each(searchResults, function (index, result) {
+          let book = `
+            <div>
+                <div>
+        <img src="/medias/${result.cover_image}" alt="Image du book" width="100%" class="h-[25rem] object-fit rounded-lg" />
+      </div>
+      <div class="text-left mt-4">
+        <a href="/catalogue/book_detail/${result.id}" class="text-black hover:underline font-bold">${result.title}</a><br />
+        <p class="my-1">${result.author_name}</p>
+        <h3 class="font-medium text-gray-500 mb-1">${result.price}</h3>
+        <div class="flex justify-between mt-5">
+          <a href="/catalogue/books/add_to_cart/${result.id}"
+            class="px-3 py-2 text-black font-bold bg-white shadow-md p-2 rounded-full flex items-center justify-center hover:bg-black hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+              class="bi bi-cart-plus-fill" viewBox="0 0 16 16">
+              <path
+                d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M9 5.5V7h1.5a.5.5 0 0 1 0 1H9v1.5a.5.5 0 0 1-1 0V8H6.5a.5.5 0 0 1 0-1H8V5.5a.5.5 0 0 1 1 0" />
+            </svg>
+          </a>
+          <a href="/catalogue/books/${result.id}" class="px-3 py-2 text-black font-semibold hover:underline">Voir
+            plus...</a>
+        </div>
+      </div>
+      </div>
+                `
+          let paginate = ``;
+          $('#pagination').append(paginate);
+          $('#FilterBook').append(book);
+          closeModal()
+        });
+      },
+      error: function (error) {
+        console.error(error);
+      }
+    });
+  });
+
+</script>
+{% endblock %}

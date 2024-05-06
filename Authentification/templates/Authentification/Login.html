@@ -1,0 +1,37 @@
+{% extends "Home.html" %}
+<!-- Définir le contenu -->
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-8 mt-24">
+    {% if error_message %}
+    <div class="mb-4">
+        <p class="mb-4 bg-red-200 text-red-800 p-3 rounded">{{ error_message }}</p>
+    </div>
+    {% endif %}
+
+    <div class="w-full max-w-lg mx-auto p-3">
+        <h1 class="text-3xl text-center font-bold mb-4 text-gray-800 uppercase mt-3">Connectez-vous</h1>
+        <!-- Formulaire de connexion -->
+        <form action="{% url 'login' %}" method="post" class="p-5 mb-4">
+            <!-- Ajouter le token CSRF pour la protection -->
+            {% csrf_token %}
+            <!-- Afficher les champs du formulaire de connexion en dur -->
+            <div class="text-start mb-4">
+                {% comment %} <label for="username" class="block text-slate-500 font-bold text-sm mb-2">Nom d'utilisateur</label> {% endcomment %}
+                <input type="text" id="username" name="username" class="appearance-none border border-slate-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-black focus:ring-2" placeholder="nom utilisateur" required>
+            </div>
+            <div class="text-start mb-4">
+                {% comment %} <label for="password" class="block text-slate-500 font-bold text-sm mb-2">Mot de passe</label> {% endcomment %}
+                <input type="password" id="password" name="password" class="appearance-none border border-slate-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-black focus:ring-2" placeholder="mot de passe" required>
+            </div>
+            <!-- Ajouter un champ cache pour le lien suivant -->
+            <input type="hidden" value="{{ next }}" name="next">
+            <!-- Afficher le bouton de connexion -->
+            <button type="submit" class="bg-black hover:bg-gray-200 hover:text-black text-white font-medium text-sm focus:ring-black py-3 px-4 rounded-full w-full mt-4 transition duration-300">Connexion</button>
+        </form>
+       <p class="text-center text-gray-500 text-sm mb-3">
+        Je n'ai pas de compte, je 
+            <a href="{% url 'signup' %}" class="text-black hover:underline">m'inscris</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

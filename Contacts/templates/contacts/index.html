@@ -1,0 +1,148 @@
+{% extends 'Home.html' %}
+
+{% block title %}
+  Contactez
+{% endblock %}
+
+{% block content %}
+  <div class="mb-24 md:mb28 mt-8">
+    <div class="max-w-lg">
+      <h1 class="text-4xl py-5 text-gray-800 font-medium">Contactez-nous</h1>
+      <p class="mb-5 text-gray-500">Nous sommes là pour vous aider</p>
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <!-- Ajoutez un champ caché pour l'ID du contact -->
+        {% if contact %}
+          <input type="hidden" name="contact_id" value="{{ contact.id }}" />
+        {% else %}
+          <input type="hidden" name="contact_id" value="" />
+        {% endif %}
+        <div class="mb-4">
+          <label for="name">Nom</label>
+          <input class="appearance-none border border-slate-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-black focus:ring-2" placeholder="nom d'utilisateur" required="" id="name" type="text" name="name" value="{{ form.name.value|default:'' }}" />
+        </div>
+        <div class="mb-4">
+          <label for="email">Email</label>
+          <input class="appearance-none border border-slate-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-black focus:ring-2" placeholder="email" placeholder-sm required="" id="email" type="email" name="email" value="{{ form.email.value|default:'' }}" />
+        </div>
+        <div class="mb-6">
+          <label for="message">Message</label>
+          <textarea class="appearance-none border border-slate-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-black focus:ring-2 resize-none" placeholder="message" required="" id="message" name="message">{{ form.message.value|default:'' }}</textarea>
+        </div>
+        <div class="flex items-center justify-between">
+          <button class="bg-blue-500 hover:bg-blue-600 focus:ring-blue-300 text-white text-sm font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+            {% if contact.id %}
+              Modifier
+            {% else %}
+              Envoyer
+            {% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+    <!-- Afficher les messages de contact -->
+    {% if contacts %}
+      {% for contact in contacts %}
+        {% if contact.user == request.user %}
+          <div class="relative">
+            <h2 class="text-2xl my-5">Boîte de contact</h2>
+            <!-- Section contact -->
+            <div class="p-6 border border-gray-200 bg-white rounded-lg dark:bg-gray-800 dark:border-gray-700 mb-3">
+              <div class="flex items-center justify-between mb-2">
+                <a href="mailto:{{ contact.email }}" class="hover:underline hover:text-blue-500"><h5 class="text-sm font-bold tracking-tight text-gray-900 dark:text-white text-start">{{ contact.name }}</h5></a>
+                <span class="text-gray-500">
+                  {% if contact.created_at != contact.updated_at %}
+                    <small class="text-muted">modifié le {{ contact.updated_at|date:'d M à H:i' }}</small>
+                  {% else %}
+                    <small class="text-muted">envoyé le {{ contact.created_at|date:'d M à H:i' }}</small>
+                  {% endif %}
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <p class="font-normal text-justify text-sm text-gray-500">{{ contact.message }}</p>
+                <p class="flex items-center">
+                  <button class="w-fit flex items-center text-sm font-medium text-center" title="Répondre" onclick="toggleReplyForm('{{ contact.id }}')">
+                    <svg class="w-6 h-6 text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.5 8H11V6.1c0-.9-.9-1.4-1.5-.9L4.4 9.7a1.2 1.2 0 0 0 0 1.8l5 4.4c.7.6 1.6 0 1.6-.8v-2h2a3 3 0 0 1 3 3V19a5.6 5.6 0 0 0-1.5-11Z" />
+                    </svg>
+                  </button>
+                  <a href="{% url 'contacts:edit_contact' contact.id %}" class="w-fit flex items-center text-sm font-medium text-center" title="Modifier">
+                    <svg class="w-6 h-6 text-emerald-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                      <path fill-rule="evenodd" d="M11.3 6.2H5a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h11c1.1 0 2-1 2-2.1V11l-4 4.2c-.3.3-.7.6-1.2.7l-2.7.6c-1.7.3-3.3-1.3-3-3.1l.6-2.9c.1-.5.4-1 .7-1.3l3-3.1Z" clip-rule="evenodd" />
+                      <path fill-rule="evenodd" d="M19.8 4.3a2.1 2.1 0 0 0-1-1.1 2 2 0 0 0-2.2.4l-.6.6 2.9 3 .5-.6a2.1 2.1 0 0 0 .6-1.5c0-.2 0-.5-.2-.8Zm-2.4 4.4-2.8-3-4.8 5-.1.3-.7 3c0 .3.3.7.6.6l2.7-.6.3-.1 4.7-5Z" clip-rule="evenodd" />
+                    </svg>
+                  </a>
+                  <a href="{% url 'contacts:delete_contact' contact.id %}" class="w-fit flex items-center text-sm font-medium text-center" title="Supprimer">
+                    <svg class="w-6 h-6 text-red-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                      <path fill-rule="evenodd" d="M8.6 2.6A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2-2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4c0-.5.2-1 .6-1.4ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clip-rule="evenodd" />
+                    </svg>
+                  </a>
+                </p>
+              </div>
+            </div>
+            <!-- section answers -->
+            <div class="{% if contact.answer_set.all %}{% endif %}">
+              {% for answer in contact.answer_set.all %}
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <div class="flex items-center justify-between">
+                      <p class="card-text text-gray-500 text-sm">{{ answer.answer_text }}</p>
+                      <span class="text-gray-500">
+                        {% if answer.created_at != answer.updated_at %}
+                          <small class="text-muted">modifié le {{ answer.updated_at|date:'d M à H:i' }}</small>
+                        {% else %}
+                          <small class="text-muted">envoyé le {{ answer.created_at|date:'d M à H:i' }}</small>
+                        {% endif %}
+                      </span>
+                    </div>
+                    <div class="flex justify-end">
+                      <a href="{% url 'contacts:edit_answer' contact.id answer.id %}" class="">
+                        <svg class="w-6 h-6 text-emerald-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                          <path fill-rule="evenodd" d="M11.3 6.2H5a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2h11c1.1 0 2-1 2-2.1V11l-4 4.2c-.3.3-.7.6-1.2.7l-2.7.6c-1.7.3-3.3-1.3-3-3.1l.6-2.9c.1-.5.4-1 .7-1.3l3-3.1Z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd" d="M19.8 4.3a2.1 2.1 0 0 0-1-1.1 2 2 0 0 0-2.2.4l-.6.6 2.9 3 .5-.6a2.1 2.1 0 0 0 .6-1.5c0-.2 0-.5-.2-.8Zm-2.4 4.4-2.8-3-4.8 5-.1.3-.7 3c0 .3.3.7.6.6l2.7-.6.3-.1 4.7-5Z" clip-rule="evenodd" />
+                        </svg>
+                      </a>
+                      <a href="{% url 'contacts:delete_answer' contact.id answer.id %}" class="">
+                        <svg class="w-6 h-6 text-red-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                          <path fill-rule="evenodd" d="M8.6 2.6A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4c0-.5.2-1 .6-1.4ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clip-rule="evenodd" />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="">
+            <!-- Formulaire de réponse (initialement caché) -->
+            <form id="replyForm{{ contact.id }}" method="post" action="{% url 'contacts:new_answer' contact.id %}" class="hidden bg-white rounded-lg border border-gray-300 px-8 pt-6 pb-8 mb-4">
+              {% csrf_token %}
+              <!-- Ajoutez les champs nécessaires pour le formulaire de réponse -->
+              <input type="hidden" name="contact_id" value="{{ contact.id }}" />
+              <div class="mb-4">
+                <label for="id_answer_text{{ contact.id }}" class="block text-start text-gray-500 text-sm font-bold mb-2">Réponse</label>
+                <textarea id="id_answer_text{{ contact.id }}" name="answer_text" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-2 focus:outline-none focus:ring-black block w-full p-2.5 resize-none" placeholder="Votre réponse" required></textarea>
+              </div>
+              <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Répondre</button>
+              </div>
+            </form>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="text-center text-gray-500 mt-20">
+        <p>Pas de message de contact disponible pour le moment. Revenez plus tard!</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    function toggleReplyForm(contactId) {
+      var replyForm = document.getElementById('replyForm' + contactId)
+      if (replyForm) {
+        replyForm.classList.toggle('hidden')
+      }
+    }
+  </script>
+{% endblock %}
